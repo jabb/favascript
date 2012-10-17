@@ -29,24 +29,17 @@
 
     core = [
         'var F = {};',
-        'F.C = null;',
         'F.S = [];',
         'F.X = {',
             '"run": function(F) {',
                 'new Function("F", F.S.pop()[0])(F);',
             '},',
-            '"on_word": function(F) {',
-                'F.X[F.C](F);',
-            '},',
-            '"on_number": function(F) {',
-                'F.S.push([F.C, "number"]);',
-            '},',
-            '"on_string": function(F) {',
-                'F.S.push([F.C, "string"]);',
-            '},',
-            '"on_block": function(F) {',
-                'F.S.push([F.C, "block"]);',
-            '},',
+        '};',
+        'var _ = function (word, type) {',
+            'if (type === "word")',
+                'F.X[word](F);',
+            'else ',
+                'F.S.push([word, type]);',
         '};',
     ].join('');
 
@@ -61,22 +54,19 @@
             if (word === '') {
             }
             if (!isNaN(word)) {
-                process.stdout.write('F.C = ' + word + ';');
-                process.stdout.write('F.X.on_number(F);');
+                process.stdout.write('_(' + word + ', "number");');
             }
             else if (word === '[') {
-                process.stdout.write('F.C = function() {');
+                process.stdout.write('_(function(F) {');
             }
             else if (word === ']') {
-                process.stdout.write('}; F.X.on_block(F);');
+                process.stdout.write('}, "block");');
             }
             else if (word[0] === '"') {
-                process.stdout.write('F.C = ' + word.replace(/\n/g, '\\\n') + ';');
-                process.stdout.write('F.X.on_string(F);');
+                process.stdout.write('_(' + word.replace(/\n/g, '\\\n') + ', "string");');
             }
             else if (word[0] === ':') {
-                process.stdout.write('F.C = "' + word.slice(1) + '"' + ';');
-                process.stdout.write('F.X.on_string(F);');
+                process.stdout.write('_("' + word.slice(1) + '", "string");');
             }
             else if (word === 'include') {
                 i++;
@@ -89,8 +79,7 @@
                 }
             }
             else {
-                process.stdout.write('F.C = "' + word + '";');
-                process.stdout.write('F.X.on_word(F);');
+                process.stdout.write('_("' + word + '", "word");');
             }
         }
     }
