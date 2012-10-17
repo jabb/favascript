@@ -29,24 +29,24 @@
         'var F = {};',
         'F.S = [];',
         'F.X = {',
-            '"run": [function(F) {',
-                'new Function("F", F.S.pop()[0])(F);',
-            '}, "block"]',
+            '"runjs": {"value": function(F) {',
+                'new Function("F", F.S.pop().value)(F);',
+            '}, "type": "block"}',
         '};',
         'var _ = function (word, type) {',
             'if (type === "word") {',
-                'if (F.X[word][1] === "block")',
-                    'F.X[word][0](F);',
+                'if (F.X[word].type === "block")',
+                    'F.X[word].value(F);',
                 'else ',
                     'F.S.push(F.X[word]);',
             '}',
             'else ',
-                'F.S.push([word, type]);',
+                'F.S.push({"value": word, "type": type});',
         '};',
     ].join('');
     parse = function (str) {
         var word, results, i;
-        word = /(#[^\n]*\n)|("[^"]*")|([^\s\n]+)/g;
+        word = /(#[^\n]*\n)|("[^"]*")|([^\s]+)/g;
         results = str.match(word);
         for (i = 0; i < results.length; ++i) {
             word = results[i];

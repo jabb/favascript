@@ -4,47 +4,57 @@
 ###############################################################################
 
 "
-F.X['assign'] = [function(F) {
-    var key = F.S[F.S.length - 2][0];
+F.X['assign'] = {'value': function(F) {
+    var key = F.S[F.S.length - 2].value;
     F.X[key] = F.S.pop();
     F.S.pop();
-}, 'block'];
-" run
+}, 'type': 'block'};
+" runjs
 
 "
-F.X['execute'] = [function(F) {
+F.X['execute'] = {'value': function(F) {
     var val;
-    if (F.S[F.S.length - 1][1] === 'block')
-        F.S.pop()[0](F);
+    if (F.S[F.S.length - 1].type === 'block')
+        F.S.pop().value(F);
     else
-        F.S.push(F.X[F.S.pop()[0]]);
-}, 'block'];
-" run
+        F.S.push(F.X[F.S.pop().value]);
+}, 'type': 'block'};
+" runjs
 
 "
-F.X['compile'] = [function(F) {
-    F.S.push([new Function('F', F.S.pop()[0]), 'block']);
-}, 'block'];
-" run
+F.X['compile'] = {'value': function(F) {
+    F.S.push({'value': new Function('F', F.S.pop().value), 'type': 'block'});
+}, 'type': 'block'};
+" runjs
 
 ###############################################################################
 # Useful operators.
 ###############################################################################
 
-:top "F.S.push([F.S.length, 'number']);" compile assign
-:typeof "F.S.push([F.S.pop()[1], 'string']);" compile assign
+:top "F.S.push({'value': F.S.length, 'type': 'number'});" compile assign
+:typeof "F.S.push({'value': F.S.pop().type, 'type': 'string'});" compile assign
 
-:+ "F.S.push([F.S.pop()[0] + F.S.pop()[0], 'number']);" compile assign
+:+
+    "
+    F.S.push({
+        'value': F.S.pop().value + F.S.pop().value,
+        'type': 'number'});
+    " compile assign
 :-
     "
-    var operand = F.S.pop()[0];
-    F.S.push([F.S.pop()[0] - operand, 'number']);
+    var operand = F.S.pop().value;
+    F.S.push({'value': F.S.pop().value - operand, 'type': 'number'});
     " compile assign
-:* "F.S.push([F.S.pop()[0] * F.S.pop()[0], 'number']);" compile assign
+:*
+    "
+    F.S.push({
+        'value': F.S.pop().value * F.S.pop().value,
+        'type': 'number'});
+    " compile assign
 :/
     "
-    var operand = F.S.pop()[0];
-    F.S.push([F.S.pop()[0] / operand, 'number']);
+    var operand = F.S.pop().value;
+    F.S.push({'value': F.S.pop().value / operand, 'type': 'number'});
     " compile assign
 
 ###############################################################################
@@ -54,7 +64,7 @@ F.X['compile'] = [function(F) {
 :drop "F.S.pop();" compile assign
 :pick
     "
-    var top = F.S.pop()[0];
+    var top = F.S.pop().value;
     F.S.push(F.S[F.S.length + top]);
     " compile assign
 :dup [ -1 pick ] assign
@@ -86,10 +96,10 @@ F.X['compile'] = [function(F) {
 
 :while
     "
-    var cond = F.S.pop()[0];
-    var loop = F.S.pop()[0];
+    var cond = F.S.pop().value;
+    var loop = F.S.pop().value;
     cond(F);
-    while (F.S.pop()[0] === 'true') {
+    while (F.S.pop().value === 'true') {
         loop(F);
         cond(F);
     }
@@ -97,30 +107,32 @@ F.X['compile'] = [function(F) {
 
 :if
     "
-    if (F.S.pop()[0] === 'true') {
-        F.S.pop(); F.S.pop()[0](F);
+    if (F.S.pop().value === 'true') {
+        F.S.pop(); F.S.pop().value(F);
     }
     else {
-        var tmp = F.S.pop()[0];
+        var tmp = F.S.pop().value;
         F.S.pop();
         tmp(F);
     }
     " compile assign
 :>
     "
-    if (F.S.pop()[0] < F.S.pop()[0]) F.S.push(['true', 'string']);
-    else F.S.push(['false', 'string']);
+    if (F.S.pop().value < F.S.pop().value) F.S.push({
+        'value': 'true', 'type': 'string'});
+    else F.S.push({'value': 'false', 'type': 'string'});
     " compile assign
 :<
     "
-    if (F.S.pop()[0] > F.S.pop()[0]) F.S.push(['true', 'string']);
-    else F.S.push(['false', 'string']);
+    if (F.S.pop().value > F.S.pop().value) F.S.push({
+        'value': 'true', 'type': 'string'});
+    else F.S.push({'value': 'false', 'type': 'string'});
     " compile assign
 
 :>= [ < not ] assign
 :<= [ > not ] assign
 
-:print "console.log(F.S.pop()[0]);" compile assign
+:print "console.log(F.S.pop().value);" compile assign
 :debug-print "console.log(F);" compile assign
 :print-stack [
     :i top assign
