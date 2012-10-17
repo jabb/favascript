@@ -1,0 +1,4 @@
+
+#favascript.fava
+
+[ 45 -1 + . ] execute debug

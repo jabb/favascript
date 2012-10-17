@@ -1,0 +1,25 @@
+
+"
+_J._X['assign'] = function(_J) {
+    var fn = _J._S.pop()[0];
+    _J._X[_J._S.pop()[0]] = fn;
+}
+" run
+
+"
+_J._X['execute'] = function(_J) {
+    _J._S.pop()[0](_J);
+}
+" run
+
+"
+_J._X['compile'] = function(_J) {
+    _J._S.push([new Function('_J', _J._S.pop()[0]), 'block']);
+}
+" run
+
+:; [ compile assign ] assign
+:. "console.log(_J._S.pop()[0])" ;
+:debug "console.log(_J);" ;
+
+:+ "_J._S.push([_J._S.pop()[0] + _J._S.pop()[0], 'number']);" ;
