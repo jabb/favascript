@@ -20,7 +20,7 @@ print-x
 
 [ 50 ] typeof print
 
-:x 20 assign
+:x 2000 assign
 
 [
     x print

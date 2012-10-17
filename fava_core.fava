@@ -1,29 +1,29 @@
 
 "
-F.X['assign'] = function(F) {
-    var fn = F.S.pop();
-    if (fn[1] === 'block')
-        F.X[F.S.pop()[0]] = fn[0];
+F.X['assign'] = [function(F) {
+    var key = F.S[F.S.length - 2][0];
+    F.X[key] = F.S.pop();
+    F.S.pop();
+}, 'block'];
+" run
+
+"
+F.X['execute'] = [function(F) {
+    var val;
+    if (F.S[F.S.length - 1][1] === 'block')
+        F.S.pop()[0](F);
     else
-        F.X[F.S.pop()[0]] = new Function('F',
-            'F.S.push([' + fn[0] + ', \\'' + fn[1] + '\\']);');
-}
+        F.S.push(F.X[F.S.pop()[0]]);
+}, 'block'];
 " run
 
 "
-F.X['execute'] = function(F) {
-    F.S.pop()[0](F);
-}
-" run
-
-"
-F.X['compile'] = function(F) {
+F.X['compile'] = [function(F) {
     F.S.push([new Function('F', F.S.pop()[0]), 'block']);
-}
+}, 'block'];
 " run
 
 :typeof "F.S.push([F.S.pop()[1], 'string']);" compile assign
-:blockof "F.S.push([F.X[F.S.pop()[0]], 'block']);" compile assign
 
 :+ "F.S.push([F.S.pop()[0] + F.S.pop()[0], 'number']);" compile assign
 :-
@@ -65,8 +65,8 @@ F.X['compile'] = function(F) {
 :true [ "true" ] assign
 :false [ "false" ] assign
 
-:-- [ dup blockof execute 1 - assign ] assign
-:++ [ dup blockof execute 1 + assign ] assign
+:-- [ dup execute 1 - assign ] assign
+:++ [ dup execute 1 + assign ] assign
 
 :while
     "
