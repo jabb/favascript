@@ -1,8 +1,12 @@
 
 "
 F.X['assign'] = function(F) {
-    var fn = F.S.pop()[0];
-    F.X[F.S.pop()[0]] = fn;
+    var fn = F.S.pop();
+    if (fn[1] === 'block')
+        F.X[F.S.pop()[0]] = fn[0];
+    else
+        F.X[F.S.pop()[0]] = new Function('F',
+            'F.S.push([' + fn[0] + ', \\'' + fn[1] + '\\']);');
 }
 " run
 
@@ -18,7 +22,86 @@ F.X['compile'] = function(F) {
 }
 " run
 
-:print "console.log(F.S.pop()[0])" compile assign
-:debug-print "console.log(F);" compile assign
+:typeof "F.S.push([F.S.pop()[1], 'string']);" compile assign
+:blockof "F.S.push([F.X[F.S.pop()[0]], 'block']);" compile assign
 
 :+ "F.S.push([F.S.pop()[0] + F.S.pop()[0], 'number']);" compile assign
+:-
+    "
+    var operand = F.S.pop()[0];
+    F.S.push([F.S.pop()[0] - operand, 'number']);
+    " compile assign
+:* "F.S.push([F.S.pop()[0] * F.S.pop()[0], 'number']);" compile assign
+:/
+    "
+    var operand = F.S.pop()[0];
+    F.S.push([F.S.pop()[0] / operand, 'number']);
+    " compile assign
+
+:drop "F.S.pop();" compile assign
+:n-dup
+    "
+    var top = F.S.pop()[0];
+    F.S.push(F.S[F.S.length + top]);
+    " compile assign
+:dup [ -1 n-dup ] assign
+:swap
+    "
+    var top = F.S.pop(); var bot = F.S.pop();
+    F.S.push(top); F.S.push(bot);
+    " compile assign
+:over [ -2 n-dup ] assign
+:rot
+    "
+    var v1 = F.S.pop(), v2 = F.S.pop(), v3 = F.S.pop();
+    F.S.push(v2); F.S.push(v3); F.S.push(v1);
+    " compile assign
+:-rot [ rot rot ] assign
+:nip [ swap drop ] assign
+:tuck [ swap over ] assign
+:2dup [ over over ] assign
+:2drop [ drop drop ] assign
+
+:true [ "true" ] assign
+:false [ "false" ] assign
+
+:-- [ dup blockof execute 1 - assign ] assign
+:++ [ dup blockof execute 1 + assign ] assign
+
+:while
+    "
+    var cond = F.S.pop()[0];
+    var loop = F.S.pop()[0];
+    cond(F);
+    while (F.S.pop()[0] === 'true') {
+        loop(F);
+        cond(F);
+    }
+    " compile assign
+
+:if
+    "
+    F.S.pop()[0](F);
+    if (F.S.pop()[0] === 'true') {
+        F.S.pop(); F.S.pop()[0](F);
+    }
+    else {
+        var tmp = F.S.pop()[0];
+        F.S.pop();
+        tmp(F);
+    }
+    " compile assign
+:>
+    "
+    if (F.S.pop()[0] < F.S.pop()[0]) F.S.push(['true', 'string']);
+    else F.S.push(['false', 'string']);
+    " compile assign
+:<
+    "
+    if (F.S.pop()[0] > F.S.pop()[0]) F.S.push(['true', 'string']);
+    else F.S.push(['false', 'string']);
+    " compile assign
+
+:print "console.log(F.S.pop()[0]);" compile assign
+:debug-print "console.log(F);" compile assign
+

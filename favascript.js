@@ -24,9 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 (function (args) {
-
     var core, parse, include;
-
     core = [
         'var F = {};',
         'F.S = [];',
@@ -42,15 +40,12 @@
                 'F.S.push([word, type]);',
         '};',
     ].join('');
-
     parse = function (str) {
         var word, results, i;
         word = /("[^"]*")|([^\s\n]+)/g;
         results = str.match(word);
-
         for (i = 0; i < results.length; ++i) {
             word = results[i];
-
             if (word === '') {
             }
             if (!isNaN(word)) {
@@ -83,7 +78,6 @@
             }
         }
     }
-
     include = function (file) {
         var source;
         if (typeof process !== 'undefined') {
@@ -92,18 +86,19 @@
         else {
             source = require('file').path(require('file').cwd()).join(file).read({charset: 'utf-8'});
         }
-
         parse(source);
     }
-
-    if (!args[1])
+    if (!args[1]) {
+        /* TODO: Add prompt. */
         throw new Error('Usage: ' + args[0] + ' FILE');
-
-    process.stdout.write('(function() {');
-    process.stdout.write(core);
-    if (typeof window !== 'undefined') {
-        include('fava_core.fava');
     }
-    include(args[1]);
-    console.log('})(this);');
+    else {
+        process.stdout.write('(function() {');
+        process.stdout.write(core);
+        if (typeof window !== 'undefined') {
+            include('fava_core.fava');
+        }
+        include(args[1]);
+        console.log('})(this);');
+    }
 })(process.argv.slice(1));
