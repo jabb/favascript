@@ -1,0 +1,24 @@
+
+"
+F.X['assign'] = function(F) {
+    var fn = F.S.pop()[0];
+    F.X[F.S.pop()[0]] = fn;
+}
+" run
+
+"
+F.X['execute'] = function(F) {
+    F.S.pop()[0](F);
+}
+" run
+
+"
+F.X['compile'] = function(F) {
+    F.S.push([new Function('F', F.S.pop()[0]), 'block']);
+}
+" run
+
+:print "console.log(F.S.pop()[0])" compile assign
+:debug-print "console.log(F);" compile assign
+
+:+ "F.S.push([F.S.pop()[0] + F.S.pop()[0], 'number']);" compile assign

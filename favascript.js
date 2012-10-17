@@ -25,28 +25,28 @@
  */
 (function (args) {
 
-    "use strict";
-
     var core, parse, include;
 
     core = [
-        'var _J = {};',
-        '_J._S = [];',
-        '_J._X = {',
-            '"run": function(_J) {',
-                'new Function("_J", _J._S.pop()[0])(_J);',
+        'var F = {};',
+        'F.C = null;',
+        'F.S = [];',
+        'F.X = {',
+            '"run": function(F) {',
+                'new Function("F", F.S.pop()[0])(F);',
             '},',
-            '"_": function(word, type) {',
-                'if (type === "number" || type === "string" || type === "block") {',
-                    '_J._S.push([word, type]);',
-                '}',
-                'else if (type === "word") {',
-                    '_J._X[word](_J);',
-                '}',
-                'else {',
-                    'console.log("Error: Got type: " + type);',
-                '}',
-            '}',
+            '"on_word": function(F) {',
+                'F.X[F.C](F);',
+            '},',
+            '"on_number": function(F) {',
+                'F.S.push([F.C, "number"]);',
+            '},',
+            '"on_string": function(F) {',
+                'F.S.push([F.C, "string"]);',
+            '},',
+            '"on_block": function(F) {',
+                'F.S.push([F.C, "block"]);',
+            '},',
         '};',
     ].join('');
 
@@ -61,25 +61,36 @@
             if (word === '') {
             }
             if (!isNaN(word)) {
-                process.stdout.write('_J._X._(' + word + ', "number");');
+                process.stdout.write('F.C = ' + word + ';');
+                process.stdout.write('F.X.on_number(F);');
             }
             else if (word === '[') {
-                process.stdout.write('_J._X._(function() {');
+                process.stdout.write('F.C = function() {');
             }
             else if (word === ']') {
-                process.stdout.write('}, "block");');
+                process.stdout.write('}; F.X.on_block(F);');
             }
             else if (word[0] === '"') {
-                process.stdout.write('_J._X._("' + word.slice(1, -1).replace(/\n/g, '\\\n') + '", "string");');
+                process.stdout.write('F.C = ' + word.replace(/\n/g, '\\\n') + ';');
+                process.stdout.write('F.X.on_string(F);');
             }
             else if (word[0] === ':') {
-                process.stdout.write('_J._X._("' + word.slice(1) + '", "string");');
+                process.stdout.write('F.C = "' + word.slice(1) + '"' + ';');
+                process.stdout.write('F.X.on_string(F);');
             }
-            else if (word[0] === '#') {
-                include(word.slice(1));
+            else if (word === 'include') {
+                i++;
+                if (i != results.length)
+                {
+                    if (results[i][0] === '"')
+                        include(results[i].slice(1, -1) + '.fava');
+                    else
+                        include(results[i] + '.fava');
+                }
             }
             else {
-                process.stdout.write('_J._X._("' + word + '", "word");');
+                process.stdout.write('F.C = "' + word + '";');
+                process.stdout.write('F.X.on_word(F);');
             }
         }
     }
@@ -101,6 +112,9 @@
 
     process.stdout.write('(function() {');
     process.stdout.write(core);
+    if (typeof window !== 'undefined') {
+        include('fava_core.fava');
+    }
     include(args[1]);
     console.log('})(this);');
 })(process.argv.slice(1));

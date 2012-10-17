@@ -1,4 +1,4 @@
 
-#favascript.fava
+include fava_core
 
-[ 45 -1 + . ] execute debug
+[ 45 -1 + print ] execute debug-print
