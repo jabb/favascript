@@ -1,4 +1,8 @@
 
+###############################################################################
+# The three main functions to kickstart everything.
+###############################################################################
+
 "
 F.X['assign'] = [function(F) {
     var key = F.S[F.S.length - 2][0];
@@ -23,6 +27,11 @@ F.X['compile'] = [function(F) {
 }, 'block'];
 " run
 
+###############################################################################
+# Useful operators.
+###############################################################################
+
+:top "F.S.push([F.S.length, 'number']);" compile assign
 :typeof "F.S.push([F.S.pop()[1], 'string']);" compile assign
 
 :+ "F.S.push([F.S.pop()[0] + F.S.pop()[0], 'number']);" compile assign
@@ -38,23 +47,27 @@ F.X['compile'] = [function(F) {
     F.S.push([F.S.pop()[0] / operand, 'number']);
     " compile assign
 
+###############################################################################
+# Classic stack operators.
+###############################################################################
+
 :drop "F.S.pop();" compile assign
-:n-dup
+:pick
     "
     var top = F.S.pop()[0];
     F.S.push(F.S[F.S.length + top]);
     " compile assign
-:dup [ -1 n-dup ] assign
+:dup [ -1 pick ] assign
 :swap
     "
     var top = F.S.pop(); var bot = F.S.pop();
     F.S.push(top); F.S.push(bot);
     " compile assign
-:over [ -2 n-dup ] assign
+:over [ -2 pick ] assign
 :rot
     "
-    var v1 = F.S.pop(), v2 = F.S.pop(), v3 = F.S.pop();
-    F.S.push(v2); F.S.push(v3); F.S.push(v1);
+    var c = F.S.pop(), b = F.S.pop(), a = F.S.pop();
+    F.S.push(b); F.S.push(c); F.S.push(a);
     " compile assign
 :-rot [ rot rot ] assign
 :nip [ swap drop ] assign
@@ -62,8 +75,11 @@ F.X['compile'] = [function(F) {
 :2dup [ over over ] assign
 :2drop [ drop drop ] assign
 
-:true [ "true" ] assign
-:false [ "false" ] assign
+###############################################################################
+# Favascript specific.
+###############################################################################
+
+:not [ [ :false ] [ :true ] rot if ] assign
 
 :-- [ dup execute 1 - assign ] assign
 :++ [ dup execute 1 + assign ] assign
@@ -81,7 +97,6 @@ F.X['compile'] = [function(F) {
 
 :if
     "
-    F.S.pop()[0](F);
     if (F.S.pop()[0] === 'true') {
         F.S.pop(); F.S.pop()[0](F);
     }
@@ -102,6 +117,12 @@ F.X['compile'] = [function(F) {
     else F.S.push(['false', 'string']);
     " compile assign
 
+:>= [ < not ] assign
+:<= [ > not ] assign
+
 :print "console.log(F.S.pop()[0]);" compile assign
 :debug-print "console.log(F);" compile assign
+:print-stack [
+    :i top assign
+] assign
 

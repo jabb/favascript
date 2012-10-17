@@ -3,11 +3,12 @@
 
 include fava_core
 
-:x 2000 assign
+:x 20 assign
 
 [
     x print
     :x --
 ]
-[ x 0 > ] while
-debug-print
+[ x 0 >= ] while
+
+:true not print
