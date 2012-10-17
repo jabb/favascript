@@ -1,24 +1,7 @@
 
+# This is a lovely comment.
+
 include fava_core
-
-:double [ 2 * ] assign
-
-:x 10 assign
-
-:print-x [ x print ] assign
-
-[
-    4 double
-    dup print
-    2 /
-    print
-] execute
-
-print-x
-:x 50 assign
-print-x
-
-[ 50 ] typeof print
 
 :x 2000 assign
 

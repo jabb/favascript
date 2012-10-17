@@ -46,13 +46,13 @@
     ].join('');
     parse = function (str) {
         var word, results, i;
-        word = /("[^"]*")|([^\s\n]+)/g;
+        word = /(#[^\n]*\n)|("[^"]*")|([^\s\n]+)/g;
         results = str.match(word);
         for (i = 0; i < results.length; ++i) {
             word = results[i];
-            if (word === '') {
+            if (word === '' || word[0] === '#') {
             }
-            if (!isNaN(word)) {
+            else if (!isNaN(word)) {
                 process.stdout.write('_(' + word + ', "number");');
             }
             else if (word === '[') {
@@ -99,9 +99,6 @@
     else {
         process.stdout.write('(function() {');
         process.stdout.write(core);
-        if (typeof window !== 'undefined') {
-            include('fava_core.fava');
-        }
         include(args[1]);
         console.log('})(this);');
     }
