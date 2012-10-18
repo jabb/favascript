@@ -23,6 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ /* Add meta information that executes word content? */
 (function (args) {
     var core, parse, include;
     core = [
@@ -83,13 +84,7 @@
         }
     }
     include = function (file) {
-        var source;
-        if (typeof process !== 'undefined') {
-            source = require('fs').readFileSync(require('path').resolve(file), 'utf8');
-        }
-        else {
-            source = require('file').path(require('file').cwd()).join(file).read({charset: 'utf-8'});
-        }
+        var source = require('fs').readFileSync(require('path').resolve(file), 'utf8');
         parse(source);
     }
     if (!args[1]) {
@@ -100,6 +95,6 @@
         process.stdout.write('(function() {');
         process.stdout.write(core);
         include(args[1]);
-        console.log('})(this);');
+        process.stdout.write('})(this);');
     }
 })(process.argv.slice(1));

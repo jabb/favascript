@@ -1,4 +1,3 @@
-
 # This is a lovely comment.
 
 include fava_core
@@ -9,6 +8,6 @@ include fava_core
     x print
     :x --
 ]
-[ x 0 >= ] while
+[ x 0 != ] while
 
-:true not print
+:true not dup print typeof print

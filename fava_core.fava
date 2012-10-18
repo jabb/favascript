@@ -89,7 +89,15 @@ F.X['compile'] = {'value': function(F) {
 # Favascript specific.
 ###############################################################################
 
+:and
+    "
+    if (F.S.pop().value === 'true' && F.S.pop().value === 'true')
+        F.S.push({'value': 'true', 'type': 'string'});
+    else
+        F.S.push({'value': 'false', 'type': 'string'});
+    " compile assign
 :not [ [ :false ] [ :true ] rot if ] assign
+:nand [ and not ] assign
 
 :-- [ dup execute 1 - assign ] assign
 :++ [ dup execute 1 + assign ] assign
@@ -118,19 +126,23 @@ F.X['compile'] = {'value': function(F) {
     " compile assign
 :>
     "
-    if (F.S.pop().value < F.S.pop().value) F.S.push({
-        'value': 'true', 'type': 'string'});
-    else F.S.push({'value': 'false', 'type': 'string'});
+    if (F.S.pop().value < F.S.pop().value)
+        F.S.push({'value': 'true', 'type': 'string'});
+    else
+        F.S.push({'value': 'false', 'type': 'string'});
     " compile assign
 :<
     "
-    if (F.S.pop().value > F.S.pop().value) F.S.push({
-        'value': 'true', 'type': 'string'});
-    else F.S.push({'value': 'false', 'type': 'string'});
+    if (F.S.pop().value > F.S.pop().value)
+        F.S.push({'value': 'true', 'type': 'string'});
+    else
+        F.S.push({'value': 'false', 'type': 'string'});
     " compile assign
 
 :>= [ < not ] assign
 :<= [ > not ] assign
+:== [ 2dup >= -rot <= and ] assign
+:!= [ == not ] assign
 
 :print "console.log(F.S.pop().value);" compile assign
 :debug-print "console.log(F);" compile assign
